@@ -1,0 +1,26 @@
+name: build merge repo tools
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 'stable'
+
+    - name: build merge repo tools
+      run: go build
+    
+    - name: upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: merge-apt-repo
+        path: merge-apt-repo

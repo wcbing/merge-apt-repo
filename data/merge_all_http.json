@@ -1,0 +1,12 @@
+[
+    {
+        "name": "spotify",
+        "repo": "http://repository.spotify.com/",
+        "amd64_path": "dists/stable/non-free/binary-amd64/Packages"
+    },
+    {
+        "name": "anydesk",
+        "repo": "http://deb.anydesk.com/",
+        "amd64_path": "dists/all/main/binary-amd64/Packages"        
+    }
+]
