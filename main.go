@@ -21,20 +21,21 @@ func readConfig() {
 func main() {
 	readConfig()
 	if config["packages_https"] == "" {
-		log.Print("packages_https and packages_http must be set in config.json")
+		log.Print("packages_https not set in config.json")
 	} else {
-		if config["merge_all_https"] != "" {
-			merge.MergeAll(config["merge_all_https"], config["packages_https"])
-		}
-		if config["merge_latest_https"] != "" {
-			merge.MergeLatest(config["merge_latest_https"], config["packages_https"])
+		if config["repo_list_https"] != "" {
+			merge.Merge(config["repo_list_https"], config["packages_https"])
+		} else {
+			log.Print("repo_list_https not set in config.json")
 		}
 	}
 	if config["packages_http"] == "" {
-		log.Fatal("packages_https and packages_http must be set in config.json")
+		log.Print("packages_http not set in config.json")
 	} else {
-		if config["merge_all_http"] != "" {
-			merge.MergeAll(config["merge_all_http"], config["packages_http"])
+		if config["repo_list_http"] != "" {
+			merge.Merge(config["repo_list_http"], config["packages_http"])
+		} else {
+			log.Print("repo_list_http not set in config.json")
 		}
 	}
 }

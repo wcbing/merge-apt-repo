@@ -8,13 +8,13 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-func getLatest(x64DebPackages []byte) (latestInfo []byte) {
+func getLatest(debPackages []byte) (latestInfo []byte) {
 	packageVersion := make(map[string]string)
 	packageInfo := make(map[string][]byte)
 
-	// 分组
-	x64DebPackages = bytes.Replace(x64DebPackages, []byte("Package: "), []byte("{{start}}Package: "), -1)
-	infoList := bytes.Split(x64DebPackages, []byte("{{start}}"))[1:]
+	// 将每个包的信息分割开，存放到 infoList 中
+	debPackages = bytes.Replace(debPackages, []byte("Package: "), []byte("{{start}}Package: "), -1)
+	infoList := bytes.Split(debPackages, []byte("{{start}}"))[1:]
 
 	findName := regexp.MustCompile("Package: (.+)")
 	findVersion := regexp.MustCompile("Version: (.+)")
@@ -36,7 +36,7 @@ func getLatest(x64DebPackages []byte) (latestInfo []byte) {
 	return
 }
 
-func MergeLatest(repoListFile, packagesFile string) {
+func Merge(repoListFile, packagesFile string) {
 	repoList := readRepoList(repoListFile)
 	if repoList == nil {
 		return
@@ -49,16 +49,36 @@ func MergeLatest(repoListFile, packagesFile string) {
 		wg.Add(1)
 		go func(r repo) {
 			defer wg.Done()
-			x64DebPackages := getRemotePackages(r)
-			results <- getLatest(x64DebPackages)
+			debPackages := []byte{}
+			// 获取 Repo 中 Amd64 包信息
+			if r.Amd64Path != "" {
+				debPackages = append(debPackages, getRemotePackages(r.Repo, r.Amd64Path)...)
+			}
+			// 获取扁平 Repo 中包信息
+			if r.MixPath != "" {
+				debPackages = append(debPackages, getRemotePackages(r.Repo, r.MixPath)...)
+			}
+			// // 获取 Repo 中 Arm64 包信息
+			// if r.Arm64Path != "" {
+			// 	debPackages = append(debPackages, getRemotePackages(r.Repo, r.Arm64Path)...)
+			// }
+
+			// 判断是否需要筛选最新版本
+			if r.OnlyLatest {
+				results <- debPackages
+			} else {
+				results <- getLatest(debPackages)
+			}
 		}(r)
 	}
+
 	wg.Wait()
 	close(results)
+
+	// 将所有结果合并保存
 	var packages []byte
 	for result := range results {
 		packages = append(packages, result...)
 	}
-
 	savePackages(packagesFile, packages)
 }

@@ -1,7 +1,6 @@
 {
     "packages_https": "output/https/Packages",
     "packages_http": "output/http/Packages",
-    "merge_all_https": "data/merge_all_https.json",
-    "merge_all_http": "data/merge_all_http.json",
-    "merge_latest_https": "data/merge_latest_https.json"
+    "repo_list_https": "data/repo_list_https.json",
+    "repo_list_http": "data/repo_list_http.json"
 }
